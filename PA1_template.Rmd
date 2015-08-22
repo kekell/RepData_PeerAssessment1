@@ -1,23 +1,28 @@
 ---
-title: "PA1_template"
+title: "Reproducible Research: Peer Assessment 1"
 author: "kekell"
-date: "Sunday, August 16, 2015"
-output: html_document
+date:   "Sunday, August 16, 2015"
+output: 
+  html_document: 
+    fig_caption: yes
+    keep_md: yes
+    number_sections: yes
+    runtime: shiny
 ---
 
 This is an R Markdown document for Peer Assessment 1 from the Coursera Reproducible Research Course. 
 
 ***
 
-###1. LOADING AND PROCESSING DATA
+### LOADING AND PROCESSING DATA
 
-#### 1A. Clear Environment Variables
+#### Clear Environment Variables
 
 ```{r}
 rm(list = ls())
 ```
 
-#### 1B. Call Required Libraries & Set Working Variables
+#### Call Required Libraries & Set Working Variables
 
 ```{r}
 require(ggplot2)
@@ -31,7 +36,7 @@ activityFile    <- "activity.csv"
 activityFileLoc <- paste(dataDir, activityFile, sep = "/" )
 ```
 
-#### 1C. Check if working directory, zip file(s), and working file(s) exist.    
+#### Check if working directory, zip file(s), and working file(s) exist.    
 
 ```{r} 
 if(!dir.exists(dataDir)) {
@@ -59,7 +64,7 @@ if (!file.exists(activityFileLoc)) {
 }
 ```
 
-#### 1D. Load CSV File for Analysis and Processing.
+#### Load CSV File for Analysis and Processing.
 
 ```{r}
 activityData <- read.csv(file = activityFileLoc, header = TRUE, sep =",", quote = "\"", na.strings = "NA")
@@ -67,27 +72,27 @@ activityData <- read.csv(file = activityFileLoc, header = TRUE, sep =",", quote 
 
 ***
 
-### 2. WHAT IS MEAN TOTAL NUMBER OF STEPS TAKEN PER DAY?
+### WHAT IS MEAN TOTAL NUMBER OF STEPS TAKEN PER DAY?
 
-#### 2A. Aggregate or sum the total number of steps taken each day.
+#### Aggregate or sum the total number of steps taken each day.
 
 ```{r}
 aggSteps <- aggregate(activityData$steps, by = list(activityData$date), FUN = sum, na.rm = TRUE)
 ```
 
-#### 2B Plot a histogram of the Total Number of Steps Taken each Day.
+#### Plot a histogram of the Total Number of Steps Taken each Day.
 
-```{r}
+```{r echo=TRUE}
 hist(aggSteps$x, 
      col = "powderblue",
      border = "navyblue",
      main = "Total Number of Steps Taken Each Day",
      xlab = "Number of Steps", ylab = "Number of Days",
      xlim = c(0,25000), breaks = 30)
-dev.off()
 ```
 
-2B. Calculate the mean and median of the total number of steps taken each day.
+
+Calculate the mean and median of the total number of steps taken each day.
 
 ```{r}
 meanAggSteps   <- mean(aggSteps$x)
@@ -99,26 +104,25 @@ The median total number of steps taken each day = `r sprintf("%.2f", medianAggSt
 
 ***
 
-### 3. WHAT IS THE AVERAGE DAILY ACTIVITY PATTERN?
+### WHAT IS THE AVERAGE DAILY ACTIVITY PATTERN?
 
-#### 3A. Average Number of Steps by Day per Five (5) Minute Interval
+#### Average Number of Steps by Day per Five (5) Minute Interval
 
 ```{r}
 avgStepsbyInterval <- aggregate(steps ~ interval, activityData, mean)
 ```
 
-#### 3B. Plot the Average Number Steps by Day per Five (5) Minute Interval
+#### Plot the Average Number Steps by Day per Five (5) Minute Interval
 
-```{r}
+```{r echo=TRUE}
 plot(avgStepsbyInterval$interval,avgStepsbyInterval$steps, 
      main="Average Number of Steps per 5 Minute Interval", col = "red",
      type="l", xlab="Time Interval from 00:00 to 23:55", ylab="Average Number of Steps", 
      xlim=c(0,2359), ylim=c(0,225))
      box("figure", col="grey")
-     dev.off()
 ```
 
-#### 3B. Determine the five (5) minute time interval that contained the maximum number of steps.
+#### Determine the five (5) minute time interval that contained the maximum number of steps.
 
 ```{r}
 max_interval <- avgStepsbyInterval[which.max(avgStepsbyInterval$steps),1]
@@ -128,9 +132,9 @@ The five (5) minute time interval containing the maximum number of steps occurre
 
 ***
 
-### 4. INPUTTING MISSING VALUES
+### INPUTTING MISSING VALUES
 
-#### 4A. Calculate and report the number of days/intervals where there were the missing values = NA.
+#### Calculate and report the number of days/intervals where there were the missing values = NA.
 
 ```{r}
 numNAs <- sum(is.na(activityData))
@@ -138,7 +142,7 @@ numNAs <- sum(is.na(activityData))
 
 The number of data records with missing values or 'NA' = ", `r numNAs`   
 
-#### 4B. Replace each missing value with the mean value of its 5-minute interval   
+#### Replace each missing value with the mean value of its 5-minute interval   
 
 ```{r}
 popMean <- function(steps, interval) {
@@ -154,9 +158,9 @@ EditActivityData$steps <- mapply(popMean, EditActivityData$steps, EditActivityDa
 popAggSteps <- tapply(EditActivityData$steps, EditActivityData$date, FUN = sum)
 ```
 
-#### 4C. Plot histogram of the Total Number of Steps Taken Each Day    
+#### Plot histogram of the Total Number of Steps Taken Each Day    
 
-```{r}
+```{r echo=TRUE}
 hist(popAggSteps, 
      col = "palegoldenrod",
      border = "steelblue4",
@@ -165,10 +169,9 @@ hist(popAggSteps,
      xlab = "Number of Steps", ylab = "Number of Days", col.lab = "midnightblue",
      ylim = c(0,20), xlim = c(0, 25000),
      breaks = 30)
-dev.off()
 ```
 
-#### 4D. Calulate the mean and median of the total number of steps taken each day.    
+#### Calulate the mean and median of the total number of steps taken each day.    
 
 ```{r}
 MeanPopAggSteps   <- mean(popAggSteps)
@@ -181,9 +184,9 @@ The median total number of steps taken each day = `r sprintf("%.1f", MedianPopAg
 
 ***
 
-### 5. ARE THERE DIFFERENCES IN ACTIVITY PATTERNS BETWEEN WEEKDAYS AND WEEKENDS?
+### ARE THERE DIFFERENCES IN ACTIVITY PATTERNS BETWEEN WEEKDAYS AND WEEKENDS?
 
-#### 5A. Create a new factor variable in the dataset with two (2) levels: weekday & weekend.
+#### Create a new factor variable in the dataset with two (2) levels: weekday & weekend.
 
 ```{r}
 EditActivityData$dateType <-  ifelse(as.POSIXlt(EditActivityData$date)$wday 
@@ -191,10 +194,10 @@ EditActivityData$dateType <-  ifelse(as.POSIXlt(EditActivityData$date)$wday
 averagedActivityDataImputed <- aggregate(steps ~ interval + dateType, data=EditActivityData, mean)
 ```
 
-#### 5B. Create a panel plot containing a time series plot of the five (5) minute interval (x-axis)
+#### Create a panel plot containing a time series plot of the five (5) minute interval (x-axis)
 #### and the average number of steps taken, averaged across all weekday & weekend days.  
 
-```{r}
+```{r echo=TRUE}
 ActivityDiff <- ggplot(averagedActivityDataImputed, aes(interval, steps, fill=dateType)) +
         geom_line() +
         facet_grid(dateType ~ .) +
@@ -209,6 +212,5 @@ ActivityDiff <- ggplot(averagedActivityDataImputed, aes(interval, steps, fill=da
         labs(x="Five (5) Minute Time Interval from 00:00 to 23:55", y="Average Number of Steps") + 
         labs(title=expression("Differences Between Weekday & Weekend Activity"))
 print(ActivityDiff)
-dev.off()
 ```
 ***

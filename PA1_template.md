@@ -1,27 +1,32 @@
----
-title: "PA1_template"
-author: "kekell"
-date: "Sunday, August 16, 2015"
-output: html_document
----
+# Reproducible Research: Peer Assessment 1
+kekell  
+Sunday, August 16, 2015  
 
 This is an R Markdown document for Peer Assessment 1 from the Coursera Reproducible Research Course. 
 
 ***
 
-###1. LOADING AND PROCESSING DATA
+### LOADING AND PROCESSING DATA
 
-#### 1A. Clear Environment Variables
+#### Clear Environment Variables
 
-```{r}
+
+```r
 rm(list = ls())
 ```
 
-#### 1B. Call Required Libraries & Set Working Variables
+#### Call Required Libraries & Set Working Variables
 
-```{r}
+
+```r
 require(ggplot2)
+```
 
+```
+## Loading required package: ggplot2
+```
+
+```r
 dataURL         <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 zipFile         <- "repdata_data_activity.zip"
 baseDir         <- getwd()
@@ -31,9 +36,10 @@ activityFile    <- "activity.csv"
 activityFileLoc <- paste(dataDir, activityFile, sep = "/" )
 ```
 
-#### 1C. Check if working directory, zip file(s), and working file(s) exist.    
+#### Check if working directory, zip file(s), and working file(s) exist.    
 
-```{r} 
+
+```r
 if(!dir.exists(dataDir)) {
         cat("Directory: ", dataDir, " does not exist in the working directory.")
         dir.create(dataDir,showWarnings = FASLE)
@@ -41,7 +47,13 @@ if(!dir.exists(dataDir)) {
 } else {
         cat("Directory: ", dataDir, " exists in the working directory.")
 }
+```
 
+```
+## Directory:  C:/Users/Kevin/Desktop/Coursera Working Dir/Activity_Monitoring/Activity_Monitoring  exists in the working directory.
+```
+
+```r
 ## Check to see if *.zip file exists, if notdownload the *.zip file.
 if (!file.exists(zipFileLoc)) { 
         cat("File: ", zipFile, " does not exist. Downloading and unzipping file.")
@@ -49,7 +61,13 @@ if (!file.exists(zipFileLoc)) {
 } else  {
         cat("File: 'repdata_data_activity.zip' exists in the working directory.")
 }
+```
 
+```
+## File: 'repdata_data_activity.zip' exists in the working directory.
+```
+
+```r
 ## Check to see if the uncompressed file exists in the project directory.
 if (!file.exists(activityFileLoc)) {
         cat("File: ", activityFile," does not exist. Unzipping file to working directory.")
@@ -59,88 +77,104 @@ if (!file.exists(activityFileLoc)) {
 }
 ```
 
-#### 1D. Load CSV File for Analysis and Processing.
+```
+## File:  activity.csv  exists in the working directory.
+```
 
-```{r}
+#### Load CSV File for Analysis and Processing.
+
+
+```r
 activityData <- read.csv(file = activityFileLoc, header = TRUE, sep =",", quote = "\"", na.strings = "NA")
 ```
 
 ***
 
-### 2. WHAT IS MEAN TOTAL NUMBER OF STEPS TAKEN PER DAY?
+### WHAT IS MEAN TOTAL NUMBER OF STEPS TAKEN PER DAY?
 
-#### 2A. Aggregate or sum the total number of steps taken each day.
+#### Aggregate or sum the total number of steps taken each day.
 
-```{r}
+
+```r
 aggSteps <- aggregate(activityData$steps, by = list(activityData$date), FUN = sum, na.rm = TRUE)
 ```
 
-#### 2B Plot a histogram of the Total Number of Steps Taken each Day.
+#### Plot a histogram of the Total Number of Steps Taken each Day.
 
-```{r}
+
+```r
 hist(aggSteps$x, 
      col = "powderblue",
      border = "navyblue",
      main = "Total Number of Steps Taken Each Day",
      xlab = "Number of Steps", ylab = "Number of Days",
      xlim = c(0,25000), breaks = 30)
-dev.off()
 ```
 
-2B. Calculate the mean and median of the total number of steps taken each day.
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
 
-```{r}
+
+Calculate the mean and median of the total number of steps taken each day.
+
+
+```r
 meanAggSteps   <- mean(aggSteps$x)
 medianAggSteps <- median(aggSteps$x)
 ```
 
-The mean total number of steps taken each day   = `r sprintf("%.2f", meanAggSteps)`  
-The median total number of steps taken each day = `r sprintf("%.2f", medianAggSteps)`    
+The mean total number of steps taken each day   = 9354.23  
+The median total number of steps taken each day = 10395.00    
 
 ***
 
-### 3. WHAT IS THE AVERAGE DAILY ACTIVITY PATTERN?
+### WHAT IS THE AVERAGE DAILY ACTIVITY PATTERN?
 
-#### 3A. Average Number of Steps by Day per Five (5) Minute Interval
+#### Average Number of Steps by Day per Five (5) Minute Interval
 
-```{r}
+
+```r
 avgStepsbyInterval <- aggregate(steps ~ interval, activityData, mean)
 ```
 
-#### 3B. Plot the Average Number Steps by Day per Five (5) Minute Interval
+#### Plot the Average Number Steps by Day per Five (5) Minute Interval
 
-```{r}
+
+```r
 plot(avgStepsbyInterval$interval,avgStepsbyInterval$steps, 
      main="Average Number of Steps per 5 Minute Interval", col = "red",
      type="l", xlab="Time Interval from 00:00 to 23:55", ylab="Average Number of Steps", 
      xlim=c(0,2359), ylim=c(0,225))
      box("figure", col="grey")
-     dev.off()
 ```
 
-#### 3B. Determine the five (5) minute time interval that contained the maximum number of steps.
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
 
-```{r}
+#### Determine the five (5) minute time interval that contained the maximum number of steps.
+
+
+```r
 max_interval <- avgStepsbyInterval[which.max(avgStepsbyInterval$steps),1]
 ```
 
-The five (5) minute time interval containing the maximum number of steps occurred at: `r max_interval` 
+The five (5) minute time interval containing the maximum number of steps occurred at: 835 
 
 ***
 
-### 4. INPUTTING MISSING VALUES
+### INPUTTING MISSING VALUES
 
-#### 4A. Calculate and report the number of days/intervals where there were the missing values = NA.
+#### Calculate and report the number of days/intervals where there were the missing values = NA.
 
-```{r}
+
+```r
 numNAs <- sum(is.na(activityData))
 ```
 
-The number of data records with missing values or 'NA' = ", `r numNAs`   
+The number of data records with missing values or 'NA' = ", 2304   
 
-#### 4B. Replace each missing value with the mean value of its 5-minute interval   
+#### Replace each missing value with the mean value of its 5-minute interval   
 
-```{r}
+
+```r
 popMean <- function(steps, interval) {
         populate <- NA
         if (!is.na(steps)) 
@@ -154,9 +188,10 @@ EditActivityData$steps <- mapply(popMean, EditActivityData$steps, EditActivityDa
 popAggSteps <- tapply(EditActivityData$steps, EditActivityData$date, FUN = sum)
 ```
 
-#### 4C. Plot histogram of the Total Number of Steps Taken Each Day    
+#### Plot histogram of the Total Number of Steps Taken Each Day    
 
-```{r}
+
+```r
 hist(popAggSteps, 
      col = "palegoldenrod",
      border = "steelblue4",
@@ -165,36 +200,40 @@ hist(popAggSteps,
      xlab = "Number of Steps", ylab = "Number of Days", col.lab = "midnightblue",
      ylim = c(0,20), xlim = c(0, 25000),
      breaks = 30)
-dev.off()
 ```
 
-#### 4D. Calulate the mean and median of the total number of steps taken each day.    
+![](PA1_template_files/figure-html/unnamed-chunk-13-1.png) 
 
-```{r}
+#### Calulate the mean and median of the total number of steps taken each day.    
+
+
+```r
 MeanPopAggSteps   <- mean(popAggSteps)
 MedianPopAggSteps <- median(popAggSteps)
 ```
 
-The mean total number of steps taken each day = `r sprintf("%.1f", MeanPopAggSteps)`   
-The median total number of steps taken each day = `r sprintf("%.1f", MedianPopAggSteps)`      
+The mean total number of steps taken each day = 10766.2   
+The median total number of steps taken each day = 10766.2      
 
 
 ***
 
-### 5. ARE THERE DIFFERENCES IN ACTIVITY PATTERNS BETWEEN WEEKDAYS AND WEEKENDS?
+### ARE THERE DIFFERENCES IN ACTIVITY PATTERNS BETWEEN WEEKDAYS AND WEEKENDS?
 
-#### 5A. Create a new factor variable in the dataset with two (2) levels: weekday & weekend.
+#### Create a new factor variable in the dataset with two (2) levels: weekday & weekend.
 
-```{r}
+
+```r
 EditActivityData$dateType <-  ifelse(as.POSIXlt(EditActivityData$date)$wday 
         %in% c(0,6), 'weekend', 'weekday')
 averagedActivityDataImputed <- aggregate(steps ~ interval + dateType, data=EditActivityData, mean)
 ```
 
-#### 5B. Create a panel plot containing a time series plot of the five (5) minute interval (x-axis)
+#### Create a panel plot containing a time series plot of the five (5) minute interval (x-axis)
 #### and the average number of steps taken, averaged across all weekday & weekend days.  
 
-```{r}
+
+```r
 ActivityDiff <- ggplot(averagedActivityDataImputed, aes(interval, steps, fill=dateType)) +
         geom_line() +
         facet_grid(dateType ~ .) +
@@ -209,6 +248,7 @@ ActivityDiff <- ggplot(averagedActivityDataImputed, aes(interval, steps, fill=da
         labs(x="Five (5) Minute Time Interval from 00:00 to 23:55", y="Average Number of Steps") + 
         labs(title=expression("Differences Between Weekday & Weekend Activity"))
 print(ActivityDiff)
-dev.off()
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-16-1.png) 
 ***
